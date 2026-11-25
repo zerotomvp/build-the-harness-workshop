@@ -59,7 +59,6 @@ export async function call(method: string, path: string, token: string, options:
     headers,
     body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
   })
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const data = (await res.json()) as any
   return { status: res.status, data }
 }

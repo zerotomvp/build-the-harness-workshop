@@ -11,6 +11,12 @@ export default tseslint.config(
     languageOptions: { globals: globals.node },
   },
   {
+    // Tests read untyped JSON responses; allow any there instead of inline disables, which a
+    // config with noInlineConfig turns into warnings.
+    files: ['api/test/**/*.ts'],
+    rules: { '@typescript-eslint/no-explicit-any': 'off' },
+  },
+  {
     files: ['scripts/**/*.mjs'],
     languageOptions: { globals: globals.node },
   },
