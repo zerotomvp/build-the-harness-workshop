@@ -1,20 +1,20 @@
 // npm run doctor: checks this machine is ready for the workshop.
 // Each line says ok, or what to fix. Exit code 1 if anything must be fixed.
 import { spawnSync } from 'node:child_process'
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import crossSpawn from 'cross-spawn'
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
-const win = process.platform === 'win32'
 let failed = false
 const line = (status, what, fix) => {
   console.log(`${status.padEnd(4)} ${what}${fix ? `\n     ${fix}` : ''}`)
   if (status === 'FIX') failed = true
 }
-const run = (cmd, args, opts = {}) =>
-  spawnSync(cmd, args, { encoding: 'utf8', shell: win, timeout: 15_000, ...opts })
+// cross-spawn runs Windows .cmd shims (claude, codex) without a shell, so arguments keep their quotes.
+const run = (cmd, args, opts = {}) => crossSpawn.sync(cmd, args, { encoding: 'utf8', timeout: 15_000, ...opts })
 
 // Node and Git
 const major = Number(process.versions.node.split('.')[0])
@@ -41,26 +41,17 @@ if (git.status === 0 && run('git', ['fetch', '--quiet'], { cwd: root }).status =
   else if (behind.status === 0) line('ok', 'the lab is up to date')
 }
 
-// Agents: found, signed in, and running project hooks.
-// Each check sends one short prompt from a scratch folder whose project settings
-// hold a hook that writes a marker file. That prompt uses your own plan or API key.
-const scratch = path.join(root, '.lab', 'doctor')
-const marker = (agent) => path.join(scratch, agent, 'hook-ran')
-const hookCommand = (agent) =>
-  `node "${path.join(scratch, agent, 'hook.mjs').replaceAll('\\', '/')}"`
-
-function prepare(agent, settingsFile, settings) {
-  const dir = path.join(scratch, agent)
-  rmSync(dir, { recursive: true, force: true })
-  mkdirSync(path.dirname(path.join(dir, settingsFile)), { recursive: true })
-  writeFileSync(
-    path.join(dir, 'hook.mjs'),
-    `import { writeFileSync } from 'node:fs'\nwriteFileSync(${JSON.stringify(marker(agent))}, 'ok')\n`,
-  )
-  writeFileSync(path.join(dir, settingsFile), JSON.stringify(settings, null, 2))
-  return dir
+// Agents: found, signed in, and running hooks.
+// Each check sends one short prompt from the lab folder with a hook, passed on the command line,
+// that writes a marker file in a temporary folder. Nothing is written to your agent's settings.
+// That prompt uses your own plan or API key.
+const scratch = mkdtempSync(path.join(os.tmpdir(), 'bth-doctor-'))
+const marker = (agent) => path.join(scratch, `${agent}-hook-ran`)
+const hookCommand = (agent) => {
+  const script = path.join(scratch, `${agent}-hook.mjs`)
+  writeFileSync(script, `import { writeFileSync } from 'node:fs'\nwriteFileSync(${JSON.stringify(marker(agent))}, 'ok')\n`)
+  return `node "${script.replaceAll('\\', '/')}"`
 }
-
 const PROMPT = 'Reply with the single word: ok'
 const read = (file) => {
   try {
@@ -89,24 +80,34 @@ function codexBlocked() {
   if (req && /allow_managed_hooks_only\s*=\s*true|^\s*hooks\s*=\s*false/m.test(read(req)))
     return `Your organisation's Codex requirements (${req}) allow only its own hooks.`
 }
+
 const agents = [
   {
     name: 'Claude Code',
     bin: 'claude',
-    settingsFile: '.claude/settings.json',
-    // Like the lab's own settings, this sets disableAllHooks to false, which overrides a true in your user settings.
-    settings: (cmd) => ({ disableAllHooks: false, hooks: { UserPromptSubmit: [{ hooks: [{ type: 'command', command: cmd }] }] } }),
-    args: () => ['-p', PROMPT],
-    blocked: claudeBlocked,
+    // --settings sits above your user and project settings, so disableAllHooks: false here
+    // also shows whether the lab's own settings will switch hooks back on.
+    args: (cmd) => [
+      '-p',
+      PROMPT,
+      '--settings',
+      JSON.stringify({ disableAllHooks: false, hooks: { UserPromptSubmit: [{ hooks: [{ type: 'command', command: cmd }] }] } }),
+    ],
     signIn: 'Run claude once and finish signing in.',
+    blocked: claudeBlocked,
   },
   {
     name: 'Codex',
     bin: 'codex',
-    settingsFile: '.codex/hooks.json',
-    settings: (cmd) => ({ hooks: { UserPromptSubmit: [{ hooks: [{ type: 'command', command: cmd }] }] } }),
-    // Codex runs project hooks only in trusted folders, so the scratch folder is trusted for this run.
-    args: (dir) => ['exec', '--skip-git-repo-check', '--trust', '--dangerously-bypass-hook-trust', '-C', dir, PROMPT],
+    // A session hook passed with -c, run without persisted hook trust, so nothing is saved.
+    args: (cmd) => [
+      'exec',
+      '--skip-git-repo-check',
+      '--dangerously-bypass-hook-trust',
+      '-c',
+      `hooks.UserPromptSubmit=[{hooks=[{type="command",command=${JSON.stringify(cmd)}}]}]`,
+      PROMPT,
+    ],
     signIn: 'Run codex once and finish signing in.',
     blocked: codexBlocked,
   },
@@ -122,8 +123,7 @@ for (const a of agents) {
   }
   found++
   line('ok', `${a.name} found (${version.stdout.trim().split('\n').pop()})`)
-  const dir = prepare(a.bin, a.settingsFile, a.settings(hookCommand(a.bin)))
-  const r = run(a.bin, a.args(dir), { cwd: dir, timeout: 180_000, input: '' })
+  const r = run(a.bin, a.args(hookCommand(a.bin)), { cwd: root, timeout: 180_000, input: '' })
   const reply = `${r.stdout ?? ''}`.toLowerCase()
   if (r.status !== 0 || !reply.includes('ok')) {
     const detail = `${r.stderr ?? ''}${r.stdout ?? ''}`.trim().split('\n').slice(-2).join(' ')
