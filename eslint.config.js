@@ -3,7 +3,8 @@ import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
 export default tseslint.config(
-  { ignores: ['**/dist/**', '**/node_modules/**'] },
+  // .lab/ holds copies (trial runs, practice repositories) that aren't the lab's own code.
+  { ignores: ['**/dist/**', '**/node_modules/**', '.lab/**'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
