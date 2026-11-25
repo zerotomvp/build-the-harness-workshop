@@ -5,13 +5,13 @@ import crossSpawn from 'cross-spawn'
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 let failed = false
 const line = (status, what, fix) => {
   console.log(`${status.padEnd(4)} ${what}${fix ? `\n     ${fix}` : ''}`)
-  if (status === 'FIX') failed = true
+  if (status === 'FIX' || status === 'FAIL') failed = true
 }
 // cross-spawn runs Windows .cmd shims (claude, codex) without a shell, so arguments keep their quotes.
 const run = (cmd, args, opts = {}) => crossSpawn.sync(cmd, args, { encoding: 'utf8', timeout: 15_000, ...opts })
@@ -40,6 +40,28 @@ if (git.status === 0 && run('git', ['fetch', '--quiet'], { cwd: root }).status =
     line('FIX', 'the lab has updates you have not pulled', 'Run git pull, then npm install.')
   else if (behind.status === 0) line('ok', 'the lab is up to date')
 }
+
+// Repository instructions (phase 1). Claude Code reads AGENTS.md only if no CLAUDE.md,
+// .claude/CLAUDE.md or CLAUDE.local.md sits in the folder it starts in or any folder above.
+const hiders = []
+for (let dir = root; ; dir = path.dirname(dir)) {
+  for (const f of ['CLAUDE.md', path.join('.claude', 'CLAUDE.md'), 'CLAUDE.local.md'])
+    // Your own ~/.claude/CLAUDE.md doesn't count: it loads alongside AGENTS.md.
+    if (existsSync(path.join(dir, f)) && path.join(dir, f) !== path.join(os.homedir(), '.claude', 'CLAUDE.md'))
+      hiders.push(path.join(dir, f))
+  if (path.dirname(dir) === dir) break
+}
+if (existsSync(path.join(root, 'AGENTS.md')))
+  line(
+    hiders.length ? 'WARN' : 'ok',
+    'AGENTS.md found',
+    hiders.length
+      ? `Claude Code will read ${hiders.join(', ')} instead of AGENTS.md. In Claude Code, set Project instructions to claude-md-and-agents-md in /config, or move that file for the workshop.`
+      : undefined,
+  )
+else line('--', 'no AGENTS.md yet (you write it in phase 1)')
+
+const harnessOnly = process.argv.includes('--harness')
 
 // Agents: found, signed in, and running hooks.
 // Each check sends one short prompt from the lab folder with a hook, passed on the command line,
@@ -115,7 +137,7 @@ const agents = [
 
 let found = 0
 let ready = 0
-for (const a of agents) {
+for (const a of harnessOnly ? [] : agents) {
   const version = run(a.bin, ['--version'])
   if (version.status !== 0) {
     line('--', `${a.name} not found`)
@@ -142,8 +164,20 @@ for (const a of agents) {
     )
   }
 }
-if (found === 0) line('FIX', 'no coding agent found', 'Install Claude Code or Codex and sign in (see the README). Open a new terminal afterwards.')
+// The lab's own hook (from phase 2): harness/doctor.mjs, or the hidden copy during a demo.
+let harnessDir = path.join(root, 'harness')
+try {
+  harnessDir = JSON.parse(readFileSync(path.join(root, '.lab', 'hidden-harness.json'), 'utf8')).path
+} catch {
+  // not hidden
+}
+if (existsSync(path.join(harnessDir, 'doctor.mjs'))) {
+  const { checkHarness } = await import(pathToFileURL(path.join(harnessDir, 'doctor.mjs')).href)
+  for (const [status, what, fix] of checkHarness(root, harnessDir)) line(status, what, fix)
+}
+
+if (!harnessOnly && found === 0) line('FIX', 'no coding agent found', 'Install Claude Code or Codex and sign in (see the README). Open a new terminal afterwards.')
 rmSync(scratch, { recursive: true, force: true })
 
-console.log(failed ? '\nFix the lines marked FIX, then run npm run doctor again.' : ready ? '\nReady for the workshop.' : '\nReady, with the warnings above.')
+console.log(failed ? '\nFix the lines marked FIX or FAIL, then run npm run doctor again.' : ready || harnessOnly ? '\nReady for the workshop.' : '\nReady, with the warnings above.')
 process.exit(failed ? 1 : 0)

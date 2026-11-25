@@ -13,12 +13,19 @@
     "lint": "eslint .",
     "typecheck": "npm run typecheck -w api && npm run typecheck -w web",
     "seed": "npm run seed -w api",
-    "doctor": "node scripts/doctor.mjs"
+    "doctor": "node scripts/doctor.mjs",
+    "import-patches": "node scripts/import-patches.mjs",
+    "time-travel": "node scripts/time-travel.mjs",
+    "show-solution": "node scripts/show-solution.mjs",
+    "probe": "node scripts/probe.mjs",
+    "trial": "node scripts/trial.mjs",
+    "harness": "node scripts/harness.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.0",
     "concurrently": "^9.2.0",
     "cross-spawn": "7.0.6",
+    "diff2html-cli": "5.2.15",
     "eslint": "^9.39.0",
     "globals": "^16.4.0",
     "typescript": "^5.9.0",

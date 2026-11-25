@@ -18,7 +18,7 @@ export default tseslint.config(
     rules: { '@typescript-eslint/no-explicit-any': 'off' },
   },
   {
-    files: ['scripts/**/*.mjs'],
+    files: ['scripts/**', 'tooling/**/*.mjs'],
     languageOptions: { globals: globals.node },
   },
   {
