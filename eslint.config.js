@@ -7,6 +7,8 @@ export default tseslint.config(
   { ignores: ['**/dist/**', '**/node_modules/**', '.lab/**'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
+  // Template literals, not string concatenation, so strings read as they print.
+  { rules: { 'prefer-template': 'error', 'no-useless-concat': 'error' } },
   {
     files: ['api/**/*.ts'],
     languageOptions: { globals: globals.node },

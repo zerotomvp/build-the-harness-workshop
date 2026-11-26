@@ -27,11 +27,11 @@ if (!phase.incremental) {
   const next = manifest.phases
     .slice(manifest.phases.indexOf(phase) + 1)
     .find(later => later.incremental)
+  const hint = next
+    ? `\nTry \`npm run show-solution -- ${next.id.replace('phase-', '')}\`.`
+    : ''
   console.log(
-    `${phase.id} has no code to write, so it has no solution to show.` +
-      (next
-        ? `\nTry \`npm run show-solution -- ${next.id.replace('phase-', '')}\`.`
-        : '')
+    `${phase.id} has no code to write, so it has no solution to show.${hint}`
   )
   process.exit(0)
 }
