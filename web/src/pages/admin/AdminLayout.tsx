@@ -17,7 +17,11 @@ export default function AdminLayout() {
   const membership = membershipFor(groupId)
 
   if (!membership || membership.role === 'member') {
-    return <p className="error">You need to be a group admin or treasurer to see this page.</p>
+    return (
+      <p className="error">
+        You need to be a group admin or treasurer to see this page.
+      </p>
+    )
   }
 
   const isAdmin = membership.role === 'admin'

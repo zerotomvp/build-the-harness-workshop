@@ -11,6 +11,6 @@ if (!existing) {
 
 const port = Number(process.env.PORT ?? 3000)
 
-serve({ fetch: app.fetch, port }, (info) => {
+serve({ fetch: app.fetch, port }, info => {
   console.log(`Hive API listening on http://localhost:${info.port}`)
 })

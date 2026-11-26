@@ -14,8 +14,8 @@ export default function InvitePage() {
   useEffect(() => {
     api
       .group(groupId)
-      .then((res) => setGroup(res.group))
-      .catch((err) => setError(err.message))
+      .then(res => setGroup(res.group))
+      .catch(err => setError(err.message))
   }, [groupId])
 
   const accept = async () => {

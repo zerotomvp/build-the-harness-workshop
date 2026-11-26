@@ -1,4 +1,7 @@
-const money = new Intl.NumberFormat('en-IE', { style: 'currency', currency: 'EUR' })
+const money = new Intl.NumberFormat('en-IE', {
+  style: 'currency',
+  currency: 'EUR',
+})
 
 export function formatMoney(cents: number) {
   return money.format(cents / 100)

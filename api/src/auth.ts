@@ -10,7 +10,9 @@ export const requireAuth = createMiddleware<AppEnv>(async (c, next) => {
   }
 
   const user = db
-    .prepare('SELECT u.* FROM auth_tokens t JOIN users u ON u.id = t.user_id WHERE t.token = ?')
+    .prepare(
+      'SELECT u.* FROM auth_tokens t JOIN users u ON u.id = t.user_id WHERE t.token = ?'
+    )
     .get(token) as User | undefined
   if (!user) {
     return c.json({ error: 'unauthorized' }, 401)

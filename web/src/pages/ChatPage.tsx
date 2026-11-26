@@ -12,9 +12,10 @@ export default function ChatPage() {
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    api.rooms().then((res) => {
+    api.rooms().then(res => {
       setRooms(res.rooms)
-      if (res.rooms.length > 0) setActiveId((current) => current ?? res.rooms[0].id)
+      if (res.rooms.length > 0)
+        setActiveId(current => current ?? res.rooms[0].id)
     })
   }, [])
 
@@ -22,7 +23,7 @@ export default function ChatPage() {
     if (!activeId) return
     let cancelled = false
     const load = () =>
-      api.messages(activeId).then((res) => {
+      api.messages(activeId).then(res => {
         if (!cancelled) setMessages(res.messages)
       })
     load()
@@ -41,14 +42,14 @@ export default function ChatPage() {
     e.preventDefault()
     if (!activeId || !draft.trim()) return
     const { message } = await api.postMessage(activeId, draft)
-    setMessages((list) => [...list, message])
+    setMessages(list => [...list, message])
     setDraft('')
   }
 
   return (
     <section className="chat">
       <aside className="rooms">
-        {rooms.map((room) => (
+        {rooms.map(room => (
           <button
             key={room.id}
             className={`room ${room.id === activeId ? 'active' : ''}`}
@@ -65,8 +66,11 @@ export default function ChatPage() {
       </aside>
       <div className="thread">
         <div className="messages">
-          {messages.map((message) => (
-            <div key={message.id} className={`message ${message.userId === me?.user.id ? 'own' : ''}`}>
+          {messages.map(message => (
+            <div
+              key={message.id}
+              className={`message ${message.userId === me?.user.id ? 'own' : ''}`}
+            >
               <span className="author">{message.userName}</span>
               <p>{message.body}</p>
             </div>
@@ -75,7 +79,11 @@ export default function ChatPage() {
         </div>
         {activeId && (
           <form className="composer" onSubmit={send}>
-            <input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Write a message…" />
+            <input
+              value={draft}
+              onChange={e => setDraft(e.target.value)}
+              placeholder="Write a message…"
+            />
             <button type="submit">Send</button>
           </form>
         )}

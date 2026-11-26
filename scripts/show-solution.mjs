@@ -9,7 +9,14 @@
 import { createRequire } from 'node:module'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { checkForUpdate, fail, findPhase, loadManifest, run, verifiedPatch } from './patches.mjs'
+import {
+  checkForUpdate,
+  fail,
+  findPhase,
+  loadManifest,
+  run,
+  verifiedPatch,
+} from './patches.mjs'
 
 const [name, ...options] = process.argv.slice(2)
 const manifest = loadManifest()
@@ -17,10 +24,14 @@ await checkForUpdate(manifest)
 const phase = findPhase(manifest, name)
 if (!phase.incremental) {
   // Not an error: phase 0 asks for no code. Point at the next phase that has a solution.
-  const next = manifest.phases.slice(manifest.phases.indexOf(phase) + 1).find((later) => later.incremental)
+  const next = manifest.phases
+    .slice(manifest.phases.indexOf(phase) + 1)
+    .find(later => later.incremental)
   console.log(
     `${phase.id} has no code to write, so it has no solution to show.` +
-      (next ? `\nTry \`npm run show-solution -- ${next.id.replace('phase-', '')}\`.` : ''),
+      (next
+        ? `\nTry \`npm run show-solution -- ${next.id.replace('phase-', '')}\`.`
+        : '')
   )
   process.exit(0)
 }
@@ -37,7 +48,9 @@ if (!cli) {
     fail('The solution viewer is missing. Run npm install in the lab folder.')
   }
 }
-console.log(`Opening the ${phase.id} solution (since ${phase.incrementalFrom ?? 'the workshop base'}) in your browser...`)
+console.log(
+  `Opening the ${phase.id} solution (since ${phase.incrementalFrom ?? 'the workshop base'}) in your browser...`
+)
 run(
   process.execPath,
   [
@@ -54,5 +67,5 @@ run(
     '--',
     patch,
   ],
-  { stdio: 'inherit' },
+  { stdio: 'inherit' }
 )

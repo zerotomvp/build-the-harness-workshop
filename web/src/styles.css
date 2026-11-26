@@ -7,7 +7,11 @@
   --accent: #d9822b;
   --accent-dark: #b86a1d;
   --danger: #c0392b;
-  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
   color: var(--text);
   background: var(--bg);
 }

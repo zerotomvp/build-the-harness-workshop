@@ -12,7 +12,10 @@ export default function SessionsAdmin() {
   const [form, setForm] = useState(emptyForm)
   const [error, setError] = useState('')
 
-  const load = useCallback(() => api.sessions(groupId).then((res) => setSessions(res.sessions)), [groupId])
+  const load = useCallback(
+    () => api.sessions(groupId).then(res => setSessions(res.sessions)),
+    [groupId]
+  )
 
   useEffect(() => {
     load()
@@ -30,7 +33,7 @@ export default function SessionsAdmin() {
           startsAt: new Date(form.startsAt).toISOString(),
           capacity: form.capacity ? Number(form.capacity) : undefined,
         },
-        membership.memberId,
+        membership.memberId
       )
       setForm(emptyForm)
       await load()
@@ -48,22 +51,26 @@ export default function SessionsAdmin() {
   return (
     <div>
       <form className="card form inline" onSubmit={create}>
-        <input placeholder="Title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
+        <input
+          placeholder="Title"
+          value={form.title}
+          onChange={e => setForm({ ...form, title: e.target.value })}
+        />
         <input
           placeholder="Location"
           value={form.location}
-          onChange={(e) => setForm({ ...form, location: e.target.value })}
+          onChange={e => setForm({ ...form, location: e.target.value })}
         />
         <input
           type="datetime-local"
           value={form.startsAt}
-          onChange={(e) => setForm({ ...form, startsAt: e.target.value })}
+          onChange={e => setForm({ ...form, startsAt: e.target.value })}
         />
         <input
           type="number"
           placeholder="Capacity"
           value={form.capacity}
-          onChange={(e) => setForm({ ...form, capacity: e.target.value })}
+          onChange={e => setForm({ ...form, capacity: e.target.value })}
         />
         <button type="submit">Add session</button>
         {error && <p className="error">{error}</p>}
@@ -79,7 +86,7 @@ export default function SessionsAdmin() {
           </tr>
         </thead>
         <tbody>
-          {sessions.map((session) => (
+          {sessions.map(session => (
             <tr key={session.id}>
               <td>
                 {session.title}

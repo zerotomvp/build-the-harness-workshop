@@ -6,14 +6,22 @@ export { db, resetDatabase }
 
 export function createUser(name: string) {
   const email = `${name.toLowerCase()}@example.com`
-  const result = db.prepare('INSERT INTO users (name, email) VALUES (?, ?)').run(name, email)
+  const result = db
+    .prepare('INSERT INTO users (name, email) VALUES (?, ?)')
+    .run(name, email)
   const id = Number(result.lastInsertRowid)
   const token = `token-${name.toLowerCase()}`
-  db.prepare('INSERT INTO auth_tokens (token, user_id) VALUES (?, ?)').run(token, id)
+  db.prepare('INSERT INTO auth_tokens (token, user_id) VALUES (?, ?)').run(
+    token,
+    id
+  )
   return { id, name, email, token }
 }
 
-export function createGroup(name: string, visibility: 'open' | 'invite' = 'open') {
+export function createGroup(
+  name: string,
+  visibility: 'open' | 'invite' = 'open'
+) {
   const slug = name.toLowerCase().replace(/\s+/g, '-')
   const result = db
     .prepare('INSERT INTO groups (name, slug, visibility) VALUES (?, ?, ?)')
@@ -23,33 +31,51 @@ export function createGroup(name: string, visibility: 'open' | 'invite' = 'open'
   return { id, name }
 }
 
-export function addMember(groupId: number, userId: number, role: Role = 'member', balance = 0) {
+export function addMember(
+  groupId: number,
+  userId: number,
+  role: Role = 'member',
+  balance = 0
+) {
   const result = db
-    .prepare('INSERT INTO members (group_id, user_id, role, balance) VALUES (?, ?, ?, ?)')
+    .prepare(
+      'INSERT INTO members (group_id, user_id, role, balance) VALUES (?, ?, ?, ?)'
+    )
     .run(groupId, userId, role, balance)
   return Number(result.lastInsertRowid)
 }
 
 export function setPrice(groupId: number, kind: string, amount: number) {
-  db.prepare('INSERT INTO prices (group_id, kind, label, amount) VALUES (?, ?, ?, ?)').run(groupId, kind, kind, amount)
+  db.prepare(
+    'INSERT INTO prices (group_id, kind, label, amount) VALUES (?, ?, ?, ?)'
+  ).run(groupId, kind, kind, amount)
 }
 
 export function createSession(groupId: number, title: string, daysAhead = 3) {
   const startsAt = new Date(Date.now() + daysAhead * 86_400_000).toISOString()
   const result = db
-    .prepare('INSERT INTO sessions (group_id, title, starts_at) VALUES (?, ?, ?)')
+    .prepare(
+      'INSERT INTO sessions (group_id, title, starts_at) VALUES (?, ?, ?)'
+    )
     .run(groupId, title, startsAt)
   return Number(result.lastInsertRowid)
 }
 
 export function balanceOf(memberId: number) {
-  const row = db.prepare('SELECT balance FROM members WHERE id = ?').get(memberId) as { balance: number }
+  const row = db
+    .prepare('SELECT balance FROM members WHERE id = ?')
+    .get(memberId) as { balance: number }
   return row.balance
 }
 
 type RequestOptions = { body?: unknown; memberId?: number }
 
-export async function call(method: string, path: string, token: string, options: RequestOptions = {}) {
+export async function call(
+  method: string,
+  path: string,
+  token: string,
+  options: RequestOptions = {}
+) {
   const headers: Record<string, string> = { Authorization: `Bearer ${token}` }
   if (options.body !== undefined) headers['Content-Type'] = 'application/json'
   if (options.memberId) headers['X-Member-Id'] = String(options.memberId)

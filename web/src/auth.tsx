@@ -1,4 +1,11 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from 'react'
 import { api, getToken, setToken } from './api'
 import type { Me, Membership } from './types'
 
@@ -49,10 +56,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setMe(null)
   }
 
-  const membershipFor = (groupId: number) => me?.memberships.find((m) => m.groupId === groupId)
+  const membershipFor = (groupId: number) =>
+    me?.memberships.find(m => m.groupId === groupId)
 
   return (
-    <AuthContext.Provider value={{ me, loading, login, logout, refresh, membershipFor }}>
+    <AuthContext.Provider
+      value={{ me, loading, login, logout, refresh, membershipFor }}
+    >
       {children}
     </AuthContext.Provider>
   )

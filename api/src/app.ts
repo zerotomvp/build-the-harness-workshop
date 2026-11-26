@@ -23,7 +23,7 @@ app.use('*', async (c, next) => {
   return requireAuth(c, next)
 })
 
-app.get('/health', (c) => c.json({ ok: true }))
+app.get('/health', c => c.json({ ok: true }))
 
 app.route('/', authRoutes)
 app.route('/', devRoutes)
@@ -32,7 +32,7 @@ app.route('/', sessionRoutes)
 app.route('/', feeRoutes)
 app.route('/', chatRoutes)
 
-app.notFound((c) => c.json({ error: 'not found' }, 404))
+app.notFound(c => c.json({ error: 'not found' }, 404))
 
 app.onError((err, c) => {
   console.error(err)

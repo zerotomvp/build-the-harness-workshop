@@ -1,4 +1,16 @@
-import type { Group, JoinRequest, Member, MemberWithUser, Message, Price, Room, Rsvp, Session, Transaction, User } from './types'
+import type {
+  Group,
+  JoinRequest,
+  Member,
+  MemberWithUser,
+  Message,
+  Price,
+  Room,
+  Rsvp,
+  Session,
+  Transaction,
+  User,
+} from './types'
 
 export function toUser(user: User) {
   return {
@@ -40,7 +52,9 @@ export function toMemberWithUser(member: MemberWithUser) {
   }
 }
 
-export function toJoinRequest(request: JoinRequest & { name: string; email: string }) {
+export function toJoinRequest(
+  request: JoinRequest & { name: string; email: string }
+) {
   return {
     id: request.id,
     groupId: request.group_id,

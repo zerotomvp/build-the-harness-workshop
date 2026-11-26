@@ -24,7 +24,12 @@ export default function PaymentsAdmin() {
   const record = async (row: Balance) => {
     const amount = toCents(amounts[row.memberId] ?? '')
     if (!amount || Number.isNaN(amount)) return
-    await api.recordPayment(groupId, row.memberId, { amount, note: 'Payment received' }, membership.memberId)
+    await api.recordPayment(
+      groupId,
+      row.memberId,
+      { amount, note: 'Payment received' },
+      membership.memberId
+    )
     setAmounts({ ...amounts, [row.memberId]: '' })
     setNotice(`Recorded ${formatMoney(amount)} from ${row.name}.`)
     await load()
@@ -33,7 +38,11 @@ export default function PaymentsAdmin() {
   const runDues = async () => {
     if (!confirm('Charge monthly dues to every member?')) return
     const res = await api.runDues(groupId, membership.memberId)
-    setNotice(res.charged ? `Charged ${res.charged} members.` : 'No members were charged.')
+    setNotice(
+      res.charged
+        ? `Charged ${res.charged} members.`
+        : 'No members were charged.'
+    )
     await load()
   }
 
@@ -55,7 +64,7 @@ export default function PaymentsAdmin() {
           </tr>
         </thead>
         <tbody>
-          {balances.map((row) => (
+          {balances.map(row => (
             <tr key={row.memberId}>
               <td>
                 {row.name}
@@ -67,7 +76,9 @@ export default function PaymentsAdmin() {
                   className="money"
                   placeholder="0.00"
                   value={amounts[row.memberId] ?? ''}
-                  onChange={(e) => setAmounts({ ...amounts, [row.memberId]: e.target.value })}
+                  onChange={e =>
+                    setAmounts({ ...amounts, [row.memberId]: e.target.value })
+                  }
                 />
                 <button onClick={() => record(row)}>Record</button>
               </td>

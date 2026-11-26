@@ -34,12 +34,18 @@ export default function GroupPage() {
   if (!group) return <p>Loading…</p>
 
   const membership = group.membership
-  const canManage = membership && (membership.role === 'admin' || membership.role === 'treasurer')
-  const sessionPrice = prices.find((p) => p.kind === 'session')
+  const canManage =
+    membership &&
+    (membership.role === 'admin' || membership.role === 'treasurer')
+  const sessionPrice = prices.find(p => p.kind === 'session')
 
   const join = async () => {
     const res = await api.joinGroup(groupId)
-    setNotice(res.status === 'pending' ? 'Request sent. An admin will review it.' : 'Welcome to the group!')
+    setNotice(
+      res.status === 'pending'
+        ? 'Request sent. An admin will review it.'
+        : 'Welcome to the group!'
+    )
     await Promise.all([load(), refresh()])
   }
 
@@ -52,10 +58,18 @@ export default function GroupPage() {
   const toggleRsvp = async (session: Session) => {
     if (session.isGoing) {
       const res = await api.cancelRsvp(session.id)
-      setNotice(res.refunded ? `RSVP cancelled, ${formatMoney(res.refunded)} refunded.` : 'RSVP cancelled.')
+      setNotice(
+        res.refunded
+          ? `RSVP cancelled, ${formatMoney(res.refunded)} refunded.`
+          : 'RSVP cancelled.'
+      )
     } else {
       const res = await api.rsvp(session.id)
-      setNotice(res.charged ? `You're going! ${formatMoney(res.charged)} added to your balance.` : "You're going!")
+      setNotice(
+        res.charged
+          ? `You're going! ${formatMoney(res.charged)} added to your balance.`
+          : "You're going!"
+      )
     }
     await Promise.all([load(), refresh()])
   }
@@ -80,7 +94,9 @@ export default function GroupPage() {
           ) : group.hasPendingRequest ? (
             <span className="badge">Request pending</span>
           ) : (
-            <button onClick={join}>{group.visibility === 'invite' ? 'Request to join' : 'Join'}</button>
+            <button onClick={join}>
+              {group.visibility === 'invite' ? 'Request to join' : 'Join'}
+            </button>
           )}
         </div>
       </div>
@@ -90,16 +106,20 @@ export default function GroupPage() {
       {membership && (
         <p className="muted">
           Your balance: <strong>{formatMoney(membership.balance)}</strong>
-          {sessionPrice && <> · Drop-in sessions are {formatMoney(sessionPrice.amount)}</>}
+          {sessionPrice && (
+            <> · Drop-in sessions are {formatMoney(sessionPrice.amount)}</>
+          )}
         </p>
       )}
 
       <div className="columns">
         <div>
           <h3>Upcoming sessions</h3>
-          {sessions.length === 0 && <p className="muted">No upcoming sessions.</p>}
+          {sessions.length === 0 && (
+            <p className="muted">No upcoming sessions.</p>
+          )}
           <ul className="list">
-            {sessions.map((session) => (
+            {sessions.map(session => (
               <li key={session.id} className="card session">
                 <div>
                   <strong>{session.title}</strong>
@@ -107,11 +127,15 @@ export default function GroupPage() {
                     {formatDate(session.startsAt)} · {session.location}
                   </div>
                   <div className="muted">
-                    {session.goingCount} going{session.capacity ? ` of ${session.capacity}` : ''}
+                    {session.goingCount} going
+                    {session.capacity ? ` of ${session.capacity}` : ''}
                   </div>
                 </div>
                 {membership && (
-                  <button className={session.isGoing ? 'secondary' : ''} onClick={() => toggleRsvp(session)}>
+                  <button
+                    className={session.isGoing ? 'secondary' : ''}
+                    onClick={() => toggleRsvp(session)}
+                  >
                     {session.isGoing ? 'Cancel RSVP' : 'RSVP'}
                   </button>
                 )}
@@ -122,13 +146,18 @@ export default function GroupPage() {
         <div>
           <h3>Members ({members.length})</h3>
           <ul className="list compact">
-            {members.map((member) => (
+            {members.map(member => (
               <li key={member.id}>
-                <span className="avatar" style={{ background: member.avatarColor }}>
+                <span
+                  className="avatar"
+                  style={{ background: member.avatarColor }}
+                >
                   {member.name?.[0]}
                 </span>
                 {member.name}
-                {member.role !== 'member' && <span className="badge">{member.role}</span>}
+                {member.role !== 'member' && (
+                  <span className="badge">{member.role}</span>
+                )}
               </li>
             ))}
           </ul>

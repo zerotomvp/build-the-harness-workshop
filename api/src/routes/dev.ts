@@ -4,7 +4,7 @@ import type { AppEnv } from '../types'
 
 const dev = new Hono<AppEnv>()
 
-dev.post('/dev/seed', (c) => {
+dev.post('/dev/seed', c => {
   if (process.env.HIVE_DEV_SEED !== '1') {
     return c.json({ error: 'not found' }, 404)
   }

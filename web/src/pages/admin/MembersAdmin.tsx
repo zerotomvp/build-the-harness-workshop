@@ -26,7 +26,9 @@ export default function MembersAdmin() {
   }, [load])
 
   const copyInvite = async () => {
-    await navigator.clipboard.writeText(`${window.location.origin}/invite/${groupId}`)
+    await navigator.clipboard.writeText(
+      `${window.location.origin}/invite/${groupId}`
+    )
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -62,17 +64,25 @@ export default function MembersAdmin() {
               {copied ? 'Copied!' : 'Copy invite link'}
             </button>
           </div>
-          {requests.length === 0 && <p className="muted">No pending requests.</p>}
+          {requests.length === 0 && (
+            <p className="muted">No pending requests.</p>
+          )}
           <ul className="list">
-            {requests.map((request) => (
+            {requests.map(request => (
               <li key={request.id} className="row">
                 <div>
-                  <strong>{request.name}</strong> <span className="muted">{request.email}</span>
-                  {request.message && <p className="muted">“{request.message}”</p>}
+                  <strong>{request.name}</strong>{' '}
+                  <span className="muted">{request.email}</span>
+                  {request.message && (
+                    <p className="muted">“{request.message}”</p>
+                  )}
                 </div>
                 <div className="actions">
                   <button onClick={() => approve(request)}>Approve</button>
-                  <button className="secondary" onClick={() => decline(request)}>
+                  <button
+                    className="secondary"
+                    onClick={() => decline(request)}
+                  >
                     Decline
                   </button>
                 </div>
@@ -93,14 +103,17 @@ export default function MembersAdmin() {
           </tr>
         </thead>
         <tbody>
-          {members.map((member) => (
+          {members.map(member => (
             <tr key={member.id}>
               <td>{member.name}</td>
               <td className="muted">{member.email}</td>
               <td>
                 {isAdmin ? (
-                  <select value={member.role} onChange={(e) => changeRole(member, e.target.value as Role)}>
-                    {roles.map((role) => (
+                  <select
+                    value={member.role}
+                    onChange={e => changeRole(member, e.target.value as Role)}
+                  >
+                    {roles.map(role => (
                       <option key={role} value={role}>
                         {role}
                       </option>
@@ -110,11 +123,16 @@ export default function MembersAdmin() {
                   member.role
                 )}
               </td>
-              <td className="muted">{new Date(member.joinedAt).toLocaleDateString('en-IE')}</td>
+              <td className="muted">
+                {new Date(member.joinedAt).toLocaleDateString('en-IE')}
+              </td>
               {isAdmin && (
                 <td>
                   {member.id !== membership.memberId && (
-                    <button className="link danger" onClick={() => remove(member)}>
+                    <button
+                      className="link danger"
+                      onClick={() => remove(member)}
+                    >
                       Remove
                     </button>
                   )}

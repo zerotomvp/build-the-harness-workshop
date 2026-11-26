@@ -1,6 +1,12 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { app } from '../src/app'
-import { addMember, call, createGroup, createUser, resetDatabase } from './helpers'
+import {
+  addMember,
+  call,
+  createGroup,
+  createUser,
+  resetDatabase,
+} from './helpers'
 
 describe('auth', () => {
   beforeEach(() => {
