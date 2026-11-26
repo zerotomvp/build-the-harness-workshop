@@ -51,7 +51,7 @@ Run `npm run doctor` again on the day: the lab gets updates until the workshop s
 From phase 2 on, the lab uses hooks: scripts your agent runs after each edit. Company laptops often
 restrict them, but not always completely. Try these in order:
 
-**Claude Code**
+#### Claude Code
 
 1. **Trust the lab folder.** The first time you start `claude` in the lab, accept the prompt to
    trust the folder. In an interactive session, Claude Code holds back hooks from every settings
@@ -62,7 +62,7 @@ restrict them, but not always completely. Try these in order:
 3. **Look at what's loaded.** In a session, `/hooks` lists the hooks Claude Code loaded. Once the
    lab's hook is on (phase 2), it should appear there.
 
-**Codex**
+#### Codex
 
 1. **Trust the lab folder.** Codex loads a project's hooks only from folders you trust. Start
    `codex` in the lab and accept the trust prompt.
@@ -98,12 +98,13 @@ track of what they owe, and chat with the rest of the group.
 - **Groups** are open (anyone can join) or invite-only (request to join, or use an invite link).
 - **Members** have a role: `member`, `admin` or `treasurer`.
 - **Sessions** are group events that members RSVP to. Groups can charge a drop-in price per session.
-- **Fees**: the treasurer sets the group's prices, records payments and runs monthly dues. Each member has a balance of what they owe.
+- **Fees**: the treasurer sets the group's prices, records payments and runs monthly dues. Each
+  member has a balance of what they owe.
 - **Chat**: every group has one chat room.
 
 ### Layout
 
-```
+```text
 api/   Hono + better-sqlite3 API (TypeScript)
 web/   React + Vite client
 ```
@@ -117,7 +118,7 @@ npm install
 npm run dev
 ```
 
-The API listens on http://localhost:3000 and the web app on http://localhost:5173
+The API listens on <http://localhost:3000> and the web app on <http://localhost:5173>
 (Vite proxies `/api` to the API). The SQLite database is created at
 `api/hive.db` and seeded on first start.
 
@@ -140,8 +141,8 @@ npm run typecheck # tsc for api and web
 
 ### Configuration
 
-| Variable        | Default   | Purpose                              |
-| --------------- | --------- | ------------------------------------ |
-| `PORT`          | `3000`    | API port                             |
-| `DATABASE_PATH` | `hive.db` | SQLite file (relative to `api/`)     |
+| Variable        | Default   | Purpose                               |
+| --------------- | --------- | ------------------------------------- |
+| `PORT`          | `3000`    | API port                              |
+| `DATABASE_PATH` | `hive.db` | SQLite file (relative to `api/`)      |
 | `HIVE_DEV_SEED` | unset     | Set to `1` to enable `POST /dev/seed` |

@@ -1,0 +1,22 @@
+{
+  "config": {
+    "default": true,
+    // The longest line allowed. Prose is wrapped at about 100 by habit; 120 catches unwrapped
+    // paragraphs without failing a commit over one word past column 100, which no tool fixes
+    // without reflowing the paragraph. Code and tables are exempt because they cannot always wrap.
+    "MD013": { "line_length": 120, "code_blocks": false, "tables": false },
+    // One table style for the repository. "aligned" reads best in raw text but re-pads a whole
+    // column when one cell grows; "compact" keeps each diff to the edited line.
+    "MD060": { "style": "aligned" },
+  },
+  "globs": ["**/*.md"],
+  // Skips what Git ignores: dependencies, virtual environments, and tool caches carry Markdown
+  // of their own (node_modules, .venv, .pytest_cache).
+  "gitignore": true,
+  "ignores": [
+    // Files a CLI owns change only through it, so lint findings there cannot be fixed by hand.
+    "backlog/**",
+    // Verbatim snapshots of external documents, refreshed from their source rather than edited.
+    "docs/sources/**",
+  ],
+}
