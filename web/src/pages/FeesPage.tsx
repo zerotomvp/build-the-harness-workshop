@@ -46,7 +46,7 @@ export default function FeesPage() {
                   <td>{new Date(fee.createdAt).toLocaleDateString('en-IE')}</td>
                   <td>{kindLabels[fee.kind]}</td>
                   <td>{fee.note}</td>
-                  <td className="amount">{formatMoney(fee.rate)}</td>
+                  <td className="amount">{formatMoney(fee.amount)}</td>
                 </tr>
               ))}
             </tbody>

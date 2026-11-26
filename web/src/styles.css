@@ -297,7 +297,7 @@ td {
   color: #2e7d32;
 }
 
-.invite {
+.card.invite {
   max-width: 480px;
   margin: 3rem auto;
 }

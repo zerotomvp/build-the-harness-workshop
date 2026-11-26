@@ -91,7 +91,7 @@ export interface Fee {
   groupId: number
   memberId: number
   kind: 'charge' | 'payment' | 'refund' | 'adjustment'
-  rate: number
+  amount: number
   note: string
   createdAt: string
 }
